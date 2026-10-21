@@ -5,6 +5,7 @@ import pytest
 import torch
 from torch import nn
 
+from tests.helpers.mark import hardware_test
 from vllm_omni.diffusion.models.cosmos3.transformer_cosmos3 import (
     Cosmos3LanguageModel,
     _Cosmos3StagedEmbedding,
@@ -69,7 +70,7 @@ def test_embedding_preserves_unstaged_forward_and_checkpoint_keys():
     assert embedding._stager is None
 
 
-@pytest.mark.cuda
+@hardware_test(res={"cuda": "L4"}, num_cards=1)
 @pytest.mark.parametrize("raise_in_forward", [False, True])
 def test_staged_embedding_reuses_checkpoint_and_recovers_after_forward(monkeypatch, raise_in_forward):
     if not current_omni_platform.is_cuda() or current_omni_platform.get_device_count() == 0:
